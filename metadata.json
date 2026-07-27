@@ -1,0 +1,6 @@
+{
+  "name": "M2Zion Salons",
+  "description": "Premium salon and grooming service discovery and booking application.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
