@@ -13,7 +13,8 @@ export default function OfferDetail() {
   const navigate = useNavigate();
   const offer = getOfferById(Number(id));
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const el = document.getElementById('scroll-root');
+    if (el) el.scrollTop = 0;
   }, []);
 
   if (!offer) {

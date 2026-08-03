@@ -1,50 +1,30 @@
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
-export function useScrollRestoration(key: string, isLoading: boolean = false) {
-  const location = useLocation();
-  const scrollRef = useRef<number>(0);
-
+export function useScrollRestoration(key: string) {
   useEffect(() => {
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-  }, []);
+    const saved = sessionStorage.getItem(`scroll_pos_${key}`);
+    if (!saved) return;
+    const target = parseInt(saved, 10);
+    if (!target) return;
 
-  useEffect(() => {
-    if (isLoading) return;
+    const el = document.getElementById("scroll-root");
+    if (!el) return;
 
-    const savedScroll = sessionStorage.getItem(`scroll_pos_${key}`);
-    
-    if (savedScroll) {
-      const targetScroll = parseInt(savedScroll, 10);
-      
-      const restoreScroll = () => {
-        window.scrollTo({
-          top: targetScroll,
-          behavior: 'instant'
-        });
-      };
-      
-      // Try restoring at multiple intervals to catch layout shifts and animation completes
-      restoreScroll();
-      setTimeout(restoreScroll, 50);
-      setTimeout(restoreScroll, 200);
-       
-    }
+    // Force scrollTop every rAF for 600ms — outlasts all page/card animations
+    const deadline = performance.now() + 600;
+    let rafId: number;
 
-    const handleScroll = () => {
-      // Don't save 0 if we are animating out
-      if (window.scrollY > 0 || scrollRef.current === 0) {
-        scrollRef.current = window.scrollY;
-        sessionStorage.setItem(`scroll_pos_${key}`, window.scrollY.toString());
+    const hold = (now: number) => {
+      el.scrollTop = target;
+      if (now < deadline) {
+        rafId = requestAnimationFrame(hold);
+      } else {
+        sessionStorage.removeItem(`scroll_pos_${key}`);
       }
     };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [key, isLoading, location.pathname]);
+
+    rafId = requestAnimationFrame(hold);
+    return () => cancelAnimationFrame(rafId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 }

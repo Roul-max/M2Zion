@@ -17,12 +17,13 @@ interface ServiceCardProps {
   originalPrice?: number;
   offerPrice?: number;
   lengthPricing?: boolean;
+  scrollKey?: string;
 }
 
 const ServiceCard = memo(function ServiceCard({ 
-  id, name, image, rating, originalPrice, offerPrice, lengthPricing
+  id, name, image, rating, originalPrice, offerPrice, lengthPricing, scrollKey
 }: ServiceCardProps) {
-  const { setLastClickedId } = useNavigation();
+  const { setLastClickedId, saveScrollPosition } = useNavigation();
   return (
     <MotionLink 
       to={`/service/${id}`}
@@ -31,6 +32,7 @@ const ServiceCard = memo(function ServiceCard({
       onClick={() => {
         haptics.tick();
         setLastClickedId(id);
+        if (scrollKey) saveScrollPosition(scrollKey);
       }}
       className="block group bg-bg-surface/50 backdrop-blur-sm border border-white/5 rounded-[24px] overflow-hidden transition-colors duration-300 hover:bg-bg-surface hover:border-accent-green/50 hover:shadow-[0_8px_24px_rgba(34,165,89,0.1)]"
     >

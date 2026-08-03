@@ -1,10 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Share2, MapPin, Star, Clock, Sparkles, Heart, Calendar, X, Check, Send, Phone, MessageCircle, Map, BarChart2 } from "lucide-react";
+import { ArrowLeft, Share2, Clock, Sparkles, Heart, Star } from "lucide-react";
 import PageTransition from "../components/PageTransition";
 import { motion, AnimatePresence } from "motion/react";
 import { getServiceById } from "../data/services";
 import RatingBadge from "../components/RatingBadge";
-import QuickActionButton from "../components/QuickActionButton";
 import PriceTag from "../components/PriceTag";
 import LengthSelector from "../components/LengthSelector";
 import ProgressiveImage from "../components/ProgressiveImage";
@@ -24,7 +23,8 @@ export default function ServiceDetail() {
           const reviewsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const el = document.getElementById('scroll-root');
+    if (el) el.scrollTop = 0;
     
     // Simulate network loading
     const loadTimer = setTimeout(() => {
@@ -97,9 +97,6 @@ export default function ServiceDetail() {
     "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&q=80&w=800&h=800",
   ];
   
-  // Calculate display price for the booking button based on length pricing or standard offer
-  
-
   return (
     <PageTransition className="min-h-screen bg-bg-base pb-6 relative">
       {/* Hero Image Carousel */}

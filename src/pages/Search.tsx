@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
 import PageTransition from "../components/PageTransition";
 import { motion, AnimatePresence } from "motion/react";
-import { SlidersHorizontal, Star, MapPin, Search as SearchIcon, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import ServiceCard from "../components/ServiceCard";
 import { allServices } from "../data/services";
-import { useNavigate } from "react-router-dom";
 import Skeleton from "../components/Skeleton";
+import { useScrollRestoration } from "../hooks/useScrollRestoration";
 
 export default function Search() {
   const [query, setQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [activeSort, setActiveSort] = useState("rating"); // rating, distance, price
+  const [activeSort, setActiveSort] = useState("rating");
+  const [maxPrice, setMaxPrice] = useState(5000);
   const [isLoading, setIsLoading] = useState(true);
+
+  useScrollRestoration('search');
+  const hasScrollToRestore = !!sessionStorage.getItem('scroll_pos_search');
 
   // Simulate loading
   useEffect(() => {
@@ -27,15 +33,13 @@ export default function Search() {
   
   let filtered = query 
     ? allServices.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.categoryName.toLowerCase().includes(query.toLowerCase()))
-    : [...allServices].slice(0, 12);
-    
-  // Mock distance for sorting
-  filtered = filtered.map((s, i) => ({...s, distance: (i * 0.5 + 0.5)}));
+    : [...allServices];
+
+  // Apply price filter
+  filtered = filtered.filter(s => (s.offerPrice || s.small || 0) <= maxPrice);
   
   if (activeSort === 'rating') {
     filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-  } else if (activeSort === 'distance') {
-    filtered.sort((a, b) => a.distance - b.distance);
   } else if (activeSort === 'price_low') {
     filtered.sort((a, b) => (a.offerPrice || a.small || 0) - (b.offerPrice || b.small || 0));
   } else if (activeSort === 'price_high') {
@@ -46,8 +50,10 @@ export default function Search() {
   return (
     <PageTransition className="min-h-screen bg-bg-base pb-32 relative">
       <header className="px-5 pt-6 pb-4 sticky top-0 bg-bg-base/80 backdrop-blur-xl z-40 border-b border-white/5">
-        <h1 className="text-2xl font-black text-text-primary tracking-tight mb-4">Search</h1>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
+          <Link to="/home" className="w-12 h-12 shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-text-primary hover:bg-white/10 active:scale-95 transition-all">
+            <Home className="w-5 h-5" />
+          </Link>
           <SearchBar 
             value={query} 
             onChange={setQuery} 
@@ -80,7 +86,7 @@ export default function Search() {
               <motion.div
                 key={service.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={hasScrollToRestore ? false : { opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                 transition={{ 
@@ -89,7 +95,7 @@ export default function Search() {
                   layout: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
                 }}
               >
-                <ServiceCard {...service} />
+                <ServiceCard {...service} scrollKey="search" />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -130,7 +136,7 @@ export default function Search() {
                 <div>
                   <h4 className="text-sm font-bold text-text-secondary mb-3 uppercase tracking-wider">Sort By</h4>
                   <div className="flex flex-wrap gap-3">
-                    {['rating', 'distance', 'price_low', 'price_high'].map(sort => (
+                    {['rating', 'price_low', 'price_high'].map(sort => (
                       <button 
                         key={sort}
                         onClick={() => setActiveSort(sort)}
@@ -141,7 +147,6 @@ export default function Search() {
                         }`}
                       >
                         {sort === 'rating' && 'Highest Rated'}
-                        {sort === 'distance' && 'Nearest'}
                         {sort === 'price_low' && 'Price: Low to High'}
                         {sort === 'price_high' && 'Price: High to Low'}
                       </button>
@@ -152,22 +157,19 @@ export default function Search() {
                 <div>
                   <h4 className="text-sm font-bold text-text-secondary mb-3 uppercase tracking-wider">Price Range</h4>
                   <div className="flex items-center gap-4">
-                    <input type="range" className="w-full accent-accent-green" />
+                    <input
+                      type="range"
+                      min={0}
+                      max={5000}
+                      step={100}
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                      className="w-full accent-accent-green"
+                    />
                   </div>
                   <div className="flex justify-between text-xs text-text-secondary mt-2 font-medium">
                     <span>₹0</span>
-                    <span>₹5000+</span>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-bold text-text-secondary mb-3 uppercase tracking-wider">Distance</h4>
-                  <div className="flex items-center gap-4">
-                    <input type="range" className="w-full accent-accent-green" />
-                  </div>
-                  <div className="flex justify-between text-xs text-text-secondary mt-2 font-medium">
-                    <span>1 km</span>
-                    <span>20+ km</span>
+                    <span className="text-accent-green font-bold">Up to ₹{maxPrice === 5000 ? '5000+' : maxPrice}</span>
                   </div>
                 </div>
 

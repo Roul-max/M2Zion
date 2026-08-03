@@ -1,6 +1,5 @@
 import { motion, HTMLMotionProps } from "motion/react";
 import { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
 
 interface PageTransitionProps extends HTMLMotionProps<"div"> {
   children: ReactNode;

@@ -1,17 +1,16 @@
 import { haptics } from "../utils/haptics";
 import React, { useState, useEffect, useRef, memo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import PageTransition from "../components/PageTransition";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Scissors, Palette, Droplets, Smile, Flower2, Wand2, Search } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import SpecialOfferCarousel from "../components/SpecialOfferCarousel";
-import CategoryChip from "../components/CategoryChip";
 import ServiceCard from "../components/ServiceCard";
 import Skeleton from "../components/Skeleton";
 import { useScrollRestoration } from "../hooks/useScrollRestoration";
 import { useNavigation } from "../contexts/NavigationContext";
-import { useScrollReveal } from "../hooks/useScrollReveal";
 import { audioCues } from "../utils/audio";
 import { categories } from "../data/services";
 import { specialOffers } from "../data/offers";
@@ -19,13 +18,13 @@ import { specialOffers } from "../data/offers";
 
 
 
-const RevealedServiceItem = memo(function RevealedServiceItem({ item, index, lastClickedId }: { key?: any; item: any; index: number; lastClickedId: string | null }) {
+const RevealedServiceItem = memo(function RevealedServiceItem({ item, index, lastClickedId, skipEntrance }: { key?: any; item: any; index: number; lastClickedId: string | null; skipEntrance?: boolean }) {
   return (
     <motion.div 
       layout
       key={item.id}
       id={`service-card-${item.id}`}
-      initial={{ opacity: 0, y: 30 }}
+      initial={skipEntrance ? false : { opacity: 0, y: 30 }}
       animate={{ 
         opacity: 1, 
         y: 0,
@@ -37,7 +36,7 @@ const RevealedServiceItem = memo(function RevealedServiceItem({ item, index, las
       exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
       transition={{ 
         duration: 0.5, 
-        delay: index * 0.08, 
+        delay: skipEntrance ? 0 : index * 0.08, 
         ease: [0.23, 1, 0.32, 1],
         ...(lastClickedId === item.id ? {
           boxShadow: { duration: 1.5, ease: "easeInOut", delay: 0.5 },
@@ -54,6 +53,7 @@ const RevealedServiceItem = memo(function RevealedServiceItem({ item, index, las
         originalPrice={item.originalPrice}
         offerPrice={item.offerPrice}
         lengthPricing={item.lengthPricing}
+        scrollKey="home"
       />
     </motion.div>
   );
@@ -81,14 +81,16 @@ export default function Home() {
   const pullStartY = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY === 0) {
+    const scroller = document.getElementById('scroll-root');
+    if (scroller && scroller.scrollTop === 0) {
       pullStartY.current = e.touches[0].clientY;
       setIsPulling(true);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (isPulling && window.scrollY <= 0) {
+    const scroller = document.getElementById('scroll-root');
+    if (isPulling && scroller && scroller.scrollTop <= 0) {
       const y = e.touches[0].clientY;
       const delta = y - pullStartY.current;
       if (delta > 0) {
@@ -113,23 +115,11 @@ export default function Home() {
     }
   };
 
-  const { lastClickedId, setLastClickedId } = useNavigation();
+  const navigate = useNavigate();
+  const { lastClickedId, setLastClickedId, saveScrollPosition } = useNavigation();
 
-  useEffect(() => {
-    if (lastClickedId) {
-      const el = document.getElementById(`service-card-${lastClickedId}`);
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: "instant", block: "center" });
-          setTimeout(() => setLastClickedId(null), 2000);
-        }, 300);
-      } else {
-        setTimeout(() => setLastClickedId(null), 2000);
-      }
-    }
-  }, [lastClickedId, setLastClickedId, activeCategory]);
-  
-  useScrollRestoration('home', isLoading);
+  useScrollRestoration('home');
+  const hasScrollToRestore = !!sessionStorage.getItem('scroll_pos_home');
 
   useEffect(() => {
     sessionStorage.setItem('m2zion_active_cat', activeCategory.toString());
@@ -206,7 +196,7 @@ export default function Home() {
       {/* Header */}
       <header className="px-5 pt-6 pb-4 sticky top-0 bg-bg-base/80 backdrop-blur-xl z-40 border-b border-white/5">
         <motion.div
-           initial={{ opacity: 0, y: -10 }}
+           initial={hasScrollToRestore ? false : { opacity: 0, y: -10 }}
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.5 }}
         >
@@ -222,14 +212,15 @@ export default function Home() {
         <AnimatePresence>
           {!isSearching && (
             <motion.section 
-              initial={{ opacity: 0, y: 40, height: 0 }}
+              initial={hasScrollToRestore ? false : { opacity: 0, y: 40, height: 0 }}
               animate={{ opacity: 1, y: 0, height: "auto" }}
               exit={{ opacity: 0, y: -20, height: 0, transition: { duration: 0.2 } }}
               transition={{ duration: 0.7, ease: "easeOut" }}
               className="mb-8 mt-2 overflow-hidden  "
             >
               <div className="flex justify-between items-end mb-4 px-5">
-                <h2 className="text-2xl font-black text-text-primary tracking-tight">Special Offers</h2>
+                <h2 className="text-3xl font-black text-text-primary tracking-tight">Special Offers</h2>
+                <button onClick={() => { saveScrollPosition('home'); navigate('/search'); }} className="text-base font-bold text-accent-green hover:opacity-80 transition-opacity">View All →</button>
               </div>
               
               {/* Auto-advancing Carousel */}
@@ -263,7 +254,7 @@ export default function Home() {
         <AnimatePresence>
           {!isSearching && (
             <motion.section 
-               initial={{ opacity: 0, x: 20, height: 0 }}
+               initial={hasScrollToRestore ? false : { opacity: 0, x: 20, height: 0 }}
                animate={{ opacity: 1, x: 0, height: "auto" }}
                exit={{ opacity: 0, x: -20, height: 0, transition: { duration: 0.2 } }}
                transition={{ duration: 0.5, delay: 0.1 }}
@@ -420,7 +411,7 @@ export default function Home() {
               >
                 <AnimatePresence>
                   {displayItems.map((item, index) => (
-                    <RevealedServiceItem key={item.id} item={item} index={index} lastClickedId={lastClickedId} />
+                    <RevealedServiceItem key={item.id} item={item} index={index} lastClickedId={lastClickedId} skipEntrance={hasScrollToRestore} />
                   ))}
                 </AnimatePresence>
               </motion.div>

@@ -7,7 +7,6 @@ import { AnimatePresence } from "motion/react";
 import OfflineOverlay from "./components/OfflineOverlay";
 import { useEffect } from "react";
 import Layout from "./components/Layout";
-import BottomNav from "./components/BottomNav";
 import { lazy, Suspense } from 'react';
 import PageSkeleton from "./components/PageSkeleton";
 import Splash from "./pages/Splash"; // keep splash eager
@@ -33,7 +32,6 @@ function AnimatedRoutes() {
         <Route path="home" element={<Home />} />
         <Route path="service/:id" element={<ServiceDetail />} />
         <Route path="offer/:id" element={<OfferDetail />} />
-        <Route path="bookings" element={<GenericPage title="My Bookings" />} />
         <Route path="search" element={<Search />} />
         <Route path="favorites" element={<GenericPage title="Favorites" />} />
         <Route path="profile" element={<Profile />} />
@@ -61,7 +59,6 @@ export default function App() {
       <Layout>
         <OfflineOverlay />
         <AnimatedRoutes />
-        
       </Layout>
     </BrowserRouter>
     </NavigationProvider>
