@@ -6,69 +6,86 @@ export default function Splash() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/home");
-    }, 2800); // slightly longer for dramatic effect
+    const timer = setTimeout(() => navigate("/home"), 2800);
     return () => clearTimeout(timer);
   }, [navigate]);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeInOut" } }}
-      className="min-h-screen flex flex-col items-center justify-center bg-bg-base relative overflow-hidden"
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      style={{ backgroundColor: "#000000" }}
+      className="min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Cinematic Ambient Glow */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        exit={{ opacity: 0, transition: { duration: 0 } }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent-green/20 rounded-full blur-[100px] pointer-events-none"
-      />
-      
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col items-center relative z-10"
+        style={{ position: "relative", display: "inline-block" }}
       >
-        <motion.div  className="flex items-center justify-center gap-1 mb-2 text-5xl font-black tracking-tighter bg-bg-base">
-          <motion.span 
-            initial={{ opacity: 0, x: -20 }}
+        {/* M2 + ZION row */}
+        <div style={{ display: "flex", alignItems: "flex-end", gap: "22px", lineHeight: 1 }}>
+
+          {/* M2 monogram */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-text-primary"
+            style={{ display: "inline-flex", alignItems: "flex-end", lineHeight: 1, letterSpacing: "-8px" }}
           >
-            M
-          </motion.span>
-          <motion.span 
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.5, type: "spring", bounce: 0.5 }}
-            className="text-accent-green"
-          >
-            2
-          </motion.span>
-          <motion.span 
-            initial={{ opacity: 0, x: 20 }}
+            {/* M */}
+            <span style={{
+              fontFamily: "'Arial Black', 'Arial Bold', Impact, sans-serif",
+              fontSize: "clamp(64px, 16vw, 104px)",
+              fontWeight: 900,
+              color: "#FFFFFF",
+              lineHeight: 1,
+            }}>M</span>
+
+            {/* 2 — same size as M, green text only, no background */}
+            <span style={{
+              fontFamily: "'Arial Black', 'Arial Bold', Impact, sans-serif",
+              fontSize: "clamp(64px, 16vw, 104px)",
+              fontWeight: 900,
+              color: "#00A85A",
+              lineHeight: 1,
+            }}>2</span>
+          </motion.div>
+
+          {/* ZION — luxury serif */}
+          <motion.span
+            initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-text-primary"
+            style={{
+              fontFamily: "'Playfair Display', 'Georgia', serif",
+              fontSize: "clamp(64px, 16vw, 104px)",
+              fontWeight: 900,
+              color: "#FFFFFF",
+              lineHeight: 1,
+              letterSpacing: "4px",
+            }}
           >
             ZION
           </motion.span>
-        </motion.div>
-        <motion.span 
-          initial={{ opacity: 0, y: 15, filter: "blur(5px)" }}
+        </div>
+
+        {/* Salons — signature script, right-aligned under ION */}
+        <motion.div
+          initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-          exit={{ opacity: 0, transition: { duration: 0 } }}
-          className="text-text-secondary font-serif italic text-2xl tracking-[0.2em]"
+          transition={{ duration: 1.1, delay: 0.85, ease: "easeOut" }}
+          style={{ textAlign: "right", marginTop: "10px", paddingRight: "2px" }}
         >
-          Salons
-        </motion.span>
+          <span style={{
+            fontFamily: "'Great Vibes', 'Dancing Script', cursive",
+            fontSize: "clamp(48px, 12vw, 80px)",
+            fontWeight: 400,
+            color: "#FFFFFF",
+            lineHeight: 1.15,
+          }}>Salons</span>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

@@ -64,8 +64,8 @@ export default function SpecialOfferCarousel({ offers }: SpecialOfferCarouselPro
           />
           
           {/* Dynamic Gradient Background */}
-          <div className={cn("absolute inset-0 mix-blend-multiply opacity-60", offers[currentIndex].gradient)} />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/60 to-transparent opacity-90" />
+          <div className={cn("absolute inset-0 mix-blend-multiply opacity-30", offers[currentIndex].gradient)} />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/40 to-transparent opacity-70" />
           
           {/* Content */}
           <div className="absolute inset-0 p-6 flex flex-col justify-between">
